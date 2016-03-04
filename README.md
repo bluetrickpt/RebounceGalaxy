@@ -1,2 +1,2 @@
 # RebounceGalaxy
-My first game with Phaser.io
+My first attempt to build a game from scratch using the Phaser.io Engine.
