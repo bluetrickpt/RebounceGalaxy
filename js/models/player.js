@@ -2,7 +2,7 @@
 var Player = {
 
 
-	createPlayer : function(playerSpriteKey, fireSpriteKey) {
+	createPlayer : function(playerSpriteKey) {
 		if(game && playerSpriteKey){
 			//The gameObject will be the instance of the player Class
 			this.instance = game.add.sprite(game.world.width/2, game.world.height/2, playerSpriteKey);
@@ -10,6 +10,8 @@ var Player = {
 	        game.physics.arcade.enable(this.instance);
 	        //Set the physics to the player
 	        this.instance.body.collideWorldBounds = true;
+	        //Set size to perfectly fit the image bounds
+	        this.instance.body.setSize(20, 32, 5, 16);
 	        this.instance.anchor.setTo(0.5,0.5);
 	        //  Player walking animations
 	        this.instance.animations.add('left', [0, 1, 2, 3], 10, true);
@@ -23,18 +25,17 @@ var Player = {
 
 			//shot delay
 	        this.SHOT_DELAY = 100; // milliseconds 
-	        this.NUMBER_OF_SHOTS = 25; //Max shots currently fired
+	        this.NUMBER_OF_SHOTS = 25; //Max shots currently fired for each element
 
-	        this.firePool = game.add.group();
-	        this.firePool.enableBody = true;
+	        //Creates the pools (containers) of the elements to be shot
+	        Elements.createPools(this);
 
-	        for(var i=0; i <this.NUMBER_OF_SHOTS; i++){
-	        	this.firePool.add(FireBall.createFireBall(fireSpriteKey));
-	        }
+	        //Default active element is fire
+	        this.activeElementPool = this.firePool;
 
 	        //Hit delay. The player can't be hit by the same element object
 	        //within this time
-	        this.HIT_DELAY = 500; //1 sec
+	        this.HIT_DELAY = 350; //msecs
 		}
 
 	},
@@ -87,12 +88,23 @@ var Player = {
 	                //Normalyze speed
 	                this.instance.body.velocity.x /= Math.sqrt(2);
 	                this.instance.body.velocity.y /= Math.sqrt(2);
-
 	            }
 	        }
 
 	        if(game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR)){ //emulate dead
             	Game.state.start('Game_Over');
+	        }
+
+	        if(game.input.keyboard.isDown(Phaser.KeyCode.ONE)){ //emulate dead
+            	if(this.activeElementPool !== this.firePool){
+            		this.activeElementPool = this.firePool;
+            	}
+	        }
+
+	        if(game.input.keyboard.isDown(Phaser.KeyCode.TWO)){ //emulate dead
+            	if(this.activeElementPool !== this.waterPool){
+            		this.activeElementPool = this.waterPool;
+            	}
 	        }
 
 	        if (game.input.activePointer.isDown) {
@@ -103,7 +115,7 @@ var Player = {
 	},
 
 	shootElement : function() {
-        //TODO: Add different elements
+        //TODO: Add different elements (change the pool to the element pool)
 
         // Enforce a short delay between shots by recording
         // the time that each bullet is shot and testing if
@@ -113,7 +125,7 @@ var Player = {
         if (game.time.now - this.lastShotAt < this.SHOT_DELAY) return;
         this.lastShotAt = game.time.now;
 
-        var elementToShoot = this.firePool.getFirstDead();
+        var elementToShoot = this.activeElementPool.getFirstDead();
 
         // If there aren't any bullets available then don't shoot
         if(elementToShoot === null || elementToShoot === undefined) return;
@@ -122,19 +134,23 @@ var Player = {
         // This makes the elementToShoot "alive"
         elementToShoot.revive();
 
-        // Set the shot starting position to the player + offset position.
+
+
+    	// Set the shot starting position to the player + offset position.
         var xOffset = Player.getPlayer().x + 1.5*Math.cos(game.physics.arcade.angleToPointer(Player.getPlayer())) * Player.getPlayer().width;
         var yOffset = Player.getPlayer().y + 1.2*Math.sin(game.physics.arcade.angleToPointer(Player.getPlayer())) * Player.getPlayer().height;
         elementToShoot.reset(xOffset, yOffset);
+
+        //  Enable arcade physics over the element
+        game.physics.arcade.enable(elementToShoot);
         //aim from player to mouse
         elementToShoot.rotation = game.physics.arcade.angleToPointer(Player.getPlayer());
 
         // Shoot it in the right direction
         elementToShoot.body.velocity.x = Math.cos(elementToShoot.rotation) * elementToShoot.speed;
         elementToShoot.body.velocity.y = Math.sin(elementToShoot.rotation) * elementToShoot.speed;
+	         
     },
-
-    
 
     hit : function(player, element) {
     	//Even if lastHitElement is undefined it means that this hit is with a new element
@@ -148,6 +164,10 @@ var Player = {
 		//If it's an element different from the last collision or enough time as passed, there's an hit
         if (game.time.now - this.lastHitAt < this.HIT_DELAY && !newElementHit) return;
         
+        //Even if it's a new element on collision, we should wait a small amount between hits,
+        //Else there's hits at 60 fps with lots of elements near
+        if (game.time.now - this.lastHitAt < this.HIT_DELAY/5) return;
+        
         this.lastHitAt = game.time.now;
         this.lastHitElement = element;
     	this.instance.hp -= element.damage;
@@ -155,6 +175,5 @@ var Player = {
     	if(this.instance.hp <= 0){
     		Game.state.start('Game_Over');
     	}
-        console.log("Player hit")
     }
 };
