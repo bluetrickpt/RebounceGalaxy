@@ -11,6 +11,8 @@ var Game = {
         game.load.spritesheet('player', 'assets/gfx/player.png', 32, 48);
         game.load.image('fire', 'assets/gfx/fire.png');
         game.load.image('water', 'assets/gfx/water.png');
+        game.load.image('earth', 'assets/gfx/earth.png');
+        game.load.image('lightning', 'assets/gfx/lightning.png');
     },
 
     create : function() {
@@ -30,10 +32,12 @@ var Game = {
 
         Player.handleInput();
         //Check colision between player and fireBullets
-        game.physics.arcade.overlap(Player.getPlayer(), [Player.firePool, Player.waterPool], Player.hit, null, Player);
+        game.physics.arcade.overlap(Player.getPlayer(), [Player.firePool, Player.waterPool, Player.earthPool, Player.lightningPool], Player.hit, null, Player);
         
         Player.firePool.forEachAlive(Collisions.handleBoundCollisions, this);
         Player.waterPool.forEachAlive(Collisions.handleBoundCollisions, this);
+            Player.earthPool.forEachAlive(Collisions.handleBoundCollisions, this);
+        Player.lightningPool.forEachAlive(Collisions.handleBoundCollisions, this);
     }
 
 

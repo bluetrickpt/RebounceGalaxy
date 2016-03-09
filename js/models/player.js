@@ -10,8 +10,8 @@ var Player = {
 	        game.physics.arcade.enable(this.instance);
 	        //Set the physics to the player
 	        this.instance.body.collideWorldBounds = true;
-	        //Set size to perfectly fit the image bounds
-	        this.instance.body.setSize(20, 32, 5, 16);
+	        //Set size of player to perfectly fit the image bounds
+	        this.instance.body.setSize(20, 44, 0, 5);
 	        this.instance.anchor.setTo(0.5,0.5);
 	        //  Player walking animations
 	        this.instance.animations.add('left', [0, 1, 2, 3], 10, true);
@@ -95,15 +95,27 @@ var Player = {
             	Game.state.start('Game_Over');
 	        }
 
-	        if(game.input.keyboard.isDown(Phaser.KeyCode.ONE)){ //emulate dead
+	        if(game.input.keyboard.isDown(Phaser.KeyCode.ONE)){ 
             	if(this.activeElementPool !== this.firePool){
             		this.activeElementPool = this.firePool;
             	}
 	        }
 
-	        if(game.input.keyboard.isDown(Phaser.KeyCode.TWO)){ //emulate dead
+	        if(game.input.keyboard.isDown(Phaser.KeyCode.TWO)){ 
             	if(this.activeElementPool !== this.waterPool){
             		this.activeElementPool = this.waterPool;
+            	}
+	        }
+
+	        if(game.input.keyboard.isDown(Phaser.KeyCode.THREE)){ 
+            	if(this.activeElementPool !== this.earthPool){
+            		this.activeElementPool = this.earthPool;
+            	}
+	        }
+
+	        if(game.input.keyboard.isDown(Phaser.KeyCode.FOUR)){ 
+            	if(this.activeElementPool !== this.lightningPool){
+            		this.activeElementPool = this.lightningPool;
             	}
 	        }
 
