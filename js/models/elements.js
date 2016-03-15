@@ -1,5 +1,10 @@
 var Elements = {
 
+	constants : {
+		//Hit delay. The player can't be hit by the same element object
+        //within this time
+        HIT_DELAY : 650 //msecs
+	},
 	//Our element types
 	fireElement : {
 		damage : 10,
@@ -9,13 +14,13 @@ var Elements = {
 
 	waterElement : {
 		damage : 7,
-		speed : 180,
+		speed : 140,
 		spriteKey : 'water'
 	},
 
 	earthElement : {
 		damage : 15,
-		speed : 200,
+		speed : 185,
 		spriteKey : 'earth'
 	},
 
@@ -62,5 +67,46 @@ var Elements = {
 		elementBall.speed = typeElement.speed;
 
 		return elementBall;
-	}
+	},
+
+	waterFireCollision : function (waterElement, fireElement) {
+		fireElement.kill();
+	},
+
+	earthLightningCollision : function (earthElement, lightningElement) {
+		lightningElement.kill();
+	},
+
+    hit : function(being, element) { //Element can either be an enemy or spell
+    	//Even if lastHitElement is undefined it means that this hit is with a new element
+    	var newElementHit = false;
+    	if(this.lastHitElement !== element){
+    		newElementHit = true;
+    	}
+
+    	if (this.lastHitAt === undefined) this.lastHitAt = 0;
+
+		//If it's an element different from the last collision or enough time as passed, there's an hit
+        if (game.time.now - this.lastHitAt < this.HIT_DELAY && !newElementHit) return;
+        
+        //Even if it's a new element on collision, we should wait a small amount between hits,
+        //Else there's hits at 60 fps with lots of elements near
+        if (game.time.now - this.lastHitAt < this.constants.HIT_DELAY/5) return;
+        
+        this.lastHitAt = game.time.now;
+        this.lastHitElement = element;
+    	being.hp -= element.damage;
+
+    	if(being.hp <= 0){
+    		being.kill();
+    	}
+
+    	if(being === Player.getPlayer()){
+    		Player.hpText.text = 'HP: ' + Player.getPlayer().hp;
+	    	if(Player.getPlayer().hp <= 0){
+	    		Game.state.start('Game_Over');
+	    	}
+    	}
+    	
+    }
 };

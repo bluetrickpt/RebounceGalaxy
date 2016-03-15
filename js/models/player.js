@@ -33,9 +33,7 @@ var Player = {
 	        //Default active element is fire
 	        this.activeElementPool = this.firePool;
 
-	        //Hit delay. The player can't be hit by the same element object
-	        //within this time
-	        this.HIT_DELAY = 350; //msecs
+	        
 		}
 
 	},
@@ -139,7 +137,7 @@ var Player = {
 
         var elementToShoot = this.activeElementPool.getFirstDead();
 
-        // If there aren't any bullets available then don't shoot
+        // If there aren't any elements available then don't shoot
         if(elementToShoot === null || elementToShoot === undefined) return;
         
         // Revive the elementToShoot
@@ -162,30 +160,5 @@ var Player = {
         elementToShoot.body.velocity.x = Math.cos(elementToShoot.rotation) * elementToShoot.speed;
         elementToShoot.body.velocity.y = Math.sin(elementToShoot.rotation) * elementToShoot.speed;
 	         
-    },
-
-    hit : function(player, element) {
-    	//Even if lastHitElement is undefined it means that this hit is with a new element
-    	var newElementHit = false;
-    	if(this.lastHitElement !== element){
-    		newElementHit = true;
-    	}
-
-    	if (this.lastHitAt === undefined) this.lastHitAt = 0;
-
-		//If it's an element different from the last collision or enough time as passed, there's an hit
-        if (game.time.now - this.lastHitAt < this.HIT_DELAY && !newElementHit) return;
-        
-        //Even if it's a new element on collision, we should wait a small amount between hits,
-        //Else there's hits at 60 fps with lots of elements near
-        if (game.time.now - this.lastHitAt < this.HIT_DELAY/5) return;
-        
-        this.lastHitAt = game.time.now;
-        this.lastHitElement = element;
-    	this.instance.hp -= element.damage;
-    	this.hpText.text = 'HP: ' + this.instance.hp;
-    	if(this.instance.hp <= 0){
-    		Game.state.start('Game_Over');
-    	}
     }
 };
