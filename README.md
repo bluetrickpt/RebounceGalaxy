@@ -8,9 +8,9 @@ The game consists of a simple rectangular arena where the player can move in a 2
 
 One gotta remember that with great firing power comes great responsability.
 
-You can try the game in this link: http://alunos.deec.uc.pt/~a2011154225/RebounceGalaxy/
+You can try the game in this link: https://bluetrickpt.github.io/RebounceGalaxy/
 Controls are wasd or arrows to move and the keys 1, 2, 3 or 4 to change the shooting elements.
-Images are courtesy of google images (for the time being)
+Images are courtesy of google images for testing purposes (for the time being)
 
 ***
 
